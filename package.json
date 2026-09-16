@@ -1,0 +1,12 @@
+{
+  "name": "serruchito-finanzas",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "web",
+    "packages/*"
+  ],
+  "scripts": {
+    "local": "npm run build -w web && npm start -w web"
+  }
+}

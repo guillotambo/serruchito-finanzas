@@ -1,0 +1,315 @@
+@import "tailwindcss";
+
+/* Paleta validada por la skill dataviz (references/palette.md). Roles fijos
+   para que la app y los gráficos hablen el mismo idioma de color. */
+:root {
+  color-scheme: light;
+  --surface-page: #f5f1e3;
+  --surface-1: #fbf8ef;
+  --text-primary: #1e1a13;
+  --text-secondary: #5c5340;
+  --text-muted: #8a7f68;
+  --gridline: #e6dfc7;
+  --axis: #cabd9d;
+  --border: rgba(30, 26, 19, 0.12);
+
+  --status-good: #0ca30c;
+  --status-critical: #d03b3b;
+  --status-warning: #fab219;
+
+  /* Orden categórico fijo: nunca ciclar, nunca reasignar por ranking. */
+  --series-1: #2a78d6; /* blue   -> ibkr */
+  --series-2: #1baf7a; /* aqua   -> cocos */
+  --series-3: #eda100; /* yellow -> balanz */
+  --series-4: #4a3aa7; /* violet -> iol */
+  --series-5: #e34948; /* red    -> reservado */
+  /* series-6 a 12: extensión solo para paletas de muchas categorías (ej.
+     torta de posiciones sin agrupar en "Otros"). No tienen identidad fija. */
+  --series-6: #0f8f8f;
+  --series-7: #b23e88;
+  --series-8: #7a9e1f;
+  --series-9: #5b5fc4;
+  --series-10: #93641f;
+  --series-11: #4a6a8a;
+  --series-12: #c2544a;
+
+  /* Acento de marca (terracota): reservado exclusivamente para acción
+     primaria, foco y selección actual. Nunca decorativo, nunca usado como
+     serie de datos ni de estado -> no compite con --status- ni --series-. */
+  --accent: #b5502e;
+  --accent-strong: #9c4325;
+  --accent-on: #ffffff;
+
+  --background: var(--surface-page);
+  --foreground: var(--text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+button:active,
+a:active {
+  transform: scale(0.98);
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skeleton {
+  background: var(--gridline);
+  border-radius: 6px;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+/* AllocationBar: separa levemente la porción del centro al hover. */
+.allocation-pie-slice {
+  transition: transform 150ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.allocation-pie-slice:hover {
+  transform: translate(calc(var(--dx) * 6px), calc(var(--dy) * 6px));
+}
+
+/* PositionsTable: filas como cards separadas (border-spacing), elevan con
+   sombra ambient sutil al hover -> ver "La Regla de la Sombra Ganada" en
+   DESIGN.md (ninguna sombra en reposo, solo como respuesta a hover). */
+.positions-table-row td {
+  border-bottom: 1px solid var(--border);
+  box-shadow: inset 0 0 0 transparent;
+  transition: background-color 160ms ease, box-shadow 160ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.positions-table-row:last-child td {
+  border-bottom: none;
+}
+
+.positions-table-row:hover td {
+  background: color-mix(in srgb, var(--row-status) 6%, transparent);
+}
+
+.positions-table-row:hover td:first-child {
+  box-shadow: inset 3px 0 0 var(--row-status);
+}
+
+.positions-table-row:focus-visible td {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.position-mobile-row:hover {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface-1)) !important;
+}
+
+.icon-button {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+
+.icon-button:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+/* Overlays (ver components/ui/Overlay.tsx): un solo juego de clases para el
+   detalle de posición, el detalle de movimiento, los filtros y el alta. */
+.ui-overlay-root {
+  animation: drawer-fade-in 180ms ease-out;
+}
+
+.ui-overlay-backdrop {
+  background: color-mix(in srgb, var(--text-primary) 28%, transparent);
+}
+
+.ui-drawer {
+  border-left: 1px solid var(--border);
+  background: var(--surface-1);
+  box-shadow: -20px 0 48px color-mix(in srgb, var(--text-primary) 14%, transparent);
+  animation: drawer-slide-in 220ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.ui-modal {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-1);
+  box-shadow: 0 24px 64px color-mix(in srgb, var(--text-primary) 20%, transparent);
+  animation: modal-pop-in 180ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes modal-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* PillGroup/BrokerFilter: una pill inactiva insinúa el acento al hover -> ver
+   DESIGN.md, "Do conectar --accent-strong a los estados hover/active de todo
+   elemento interactivo". La activa ya está resuelta por relleno. */
+.filter-pill {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.filter-pill[aria-pressed="false"]:hover {
+  border-color: var(--accent-strong);
+  color: var(--text-primary);
+}
+
+/* Actividad: encabezado de cada día del feed. */
+.activity-day-header td {
+  background: color-mix(in srgb, var(--gridline) 45%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Actividad: tinte de fila al 5% según el tipo de movimiento -> ver DESIGN.md
+   §5 "Data Table Row Tint" (tinte, nunca badges de color). */
+.activity-row td {
+  border-bottom: 1px solid var(--border);
+  background: var(--row-tint, transparent);
+  transition: background-color 160ms ease;
+}
+
+.activity-row:hover td {
+  background: color-mix(in srgb, var(--row-status, var(--text-primary)) 8%, transparent);
+}
+
+.market-mover-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-page);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.market-mover-chip:hover {
+  border-color: var(--row-status);
+  background: color-mix(in srgb, var(--row-status) 6%, var(--surface-page));
+}
+
+.dashboard-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(17rem, 0.8fr);
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.dashboard-hero-value,
+.dashboard-day-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-1);
+}
+
+.dashboard-hero-value {
+  padding: 1.5rem;
+}
+
+.dashboard-day-card {
+  padding: 1.5rem;
+}
+
+.dashboard-inline-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+}
+
+@keyframes drawer-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawer-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 1023px) {
+  .dashboard-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .dashboard-hero-value,
+  .dashboard-day-card {
+    padding: 1.25rem;
+  }
+
+  .dashboard-inline-metrics {
+    gap: 1rem;
+  }
+
+  .ui-drawer {
+    max-width: none;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    opacity: 0.75;
+  }
+
+  .allocation-pie-slice {
+    transition: none;
+  }
+
+  .allocation-pie-slice:hover {
+    transform: none;
+  }
+
+  .ui-overlay-root,
+  .ui-drawer,
+  .ui-modal {
+    animation: none;
+  }
+
+  .filter-pill,
+  .activity-row td {
+    transition: none;
+  }
+}
